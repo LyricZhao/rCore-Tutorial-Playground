@@ -1,8 +1,8 @@
 use super::timer;
 use super::trap_frame::TrapFrame;
 use riscv::register::{
+    scause::{Exception, Interrupt, Trap},
     stvec,
-    scause::{Trap, Exception, Interrupt},
 };
 
 global_asm!(include_str!("../asm/interrupt.asm"));

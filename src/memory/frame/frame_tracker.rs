@@ -1,9 +1,6 @@
-//! 物理帧的类
+//! 提供物理帧的『`Box`』 [`FrameTracker`]
 
-use crate::memory::{
-    address::*,
-    frame::allocator::FRAME_ALLOCATOR,
-};
+use crate::memory::{address::*, frame::allocator::FRAME_ALLOCATOR};
 
 /// 分配出的物理帧
 ///
@@ -22,7 +19,7 @@ use crate::memory::{
 ///
 /// 使用 `Tracker` 其实就很像使用一个 smart pointer。如果需要引用计数，
 /// 就在外面再套一层 [`Arc`](alloc::sync::Arc) 就好
-pub struct FrameTracker(pub(super) PhysicalAddress);
+pub struct FrameTracker(PhysicalAddress);
 
 impl FrameTracker {
     /// 帧的物理地址
@@ -35,7 +32,13 @@ impl FrameTracker {
     }
 }
 
-/// 帧在释放时会放回 [`frame_allocator`] 的空闲链表中
+impl<T: Into<PhysicalPageNumber>> From<T> for FrameTracker {
+    fn from(v: T) -> Self {
+        Self(v.into().into())
+    }
+}
+
+/// 帧在释放时会放回 [`static@FRAME_ALLOCATOR`] 的空闲链表中
 impl Drop for FrameTracker {
     fn drop(&mut self) {
         FRAME_ALLOCATOR.lock().dealloc(self);

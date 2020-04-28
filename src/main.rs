@@ -31,6 +31,7 @@
 
 #[macro_use]
 mod console;
+mod data_structure;
 mod interrupt;
 mod memory;
 mod panic;
@@ -54,14 +55,14 @@ pub extern "C" fn rust_main() -> ! {
     for _ in 0..2 {
         let frame_0 = match memory::frame::FRAME_ALLOCATOR.lock().alloc() {
             Result::Ok(frame_tracker) => frame_tracker,
-            Result::Err(err) => panic!("{}", err)
+            Result::Err(err) => panic!("{}", err),
         };
         let frame_1 = match memory::frame::FRAME_ALLOCATOR.lock().alloc() {
             Result::Ok(frame_tracker) => frame_tracker,
-            Result::Err(err) => panic!("{}", err)
+            Result::Err(err) => panic!("{}", err),
         };
         println!("{} and {}", frame_0.address(), frame_1.address());
     }
 
-    loop{}
+    loop {}
 }
