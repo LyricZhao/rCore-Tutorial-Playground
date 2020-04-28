@@ -2,7 +2,7 @@
 //!
 //! 我们为虚拟地址和物理地址分别设立两种类型，利用编译器检查来防止混淆。
 
-use super::config::PAGE_SIZE;
+use super::config::{KERNEL_MAP_OFFSET, PAGE_SIZE};
 use bit_field::BitField;
 
 /// 虚拟地址
@@ -36,16 +36,52 @@ impl<T> From<*mut T> for VirtualAddress {
     }
 }
 
+/// 虚实页号之间的线性映射
+impl From<PhysicalPageNumber> for VirtualPageNumber {
+    fn from(ppn: PhysicalPageNumber) -> Self {
+        Self(ppn.0 + KERNEL_MAP_OFFSET / PAGE_SIZE)
+    }
+}
+/// 虚实页号之间的线性映射
+impl From<VirtualPageNumber> for PhysicalPageNumber {
+    fn from(vpn: VirtualPageNumber) -> Self {
+        Self(vpn.0 - KERNEL_MAP_OFFSET / PAGE_SIZE)
+    }
+}
+/// 虚实地址之间的线性映射
+impl From<PhysicalAddress> for VirtualAddress {
+    fn from(pa: PhysicalAddress) -> Self {
+        Self(pa.0 + KERNEL_MAP_OFFSET)
+    }
+}
+/// 虚实地址之间的线性映射
+impl From<VirtualAddress> for PhysicalAddress {
+    fn from(va: VirtualAddress) -> Self {
+        Self(va.0 - KERNEL_MAP_OFFSET)
+    }
+}
 impl VirtualAddress {
     /// 从虚拟地址取得某类型的 &mut 引用
     pub fn deref<T>(self) -> &'static mut T {
         unsafe { &mut *(self.0 as *mut T) }
     }
 }
+impl PhysicalAddress {
+    /// 从物理地址经过线性映射取得 &mut 引用
+    pub fn deref_kernel<T>(self) -> &'static mut T {
+        VirtualAddress::from(self).deref()
+    }
+}
 impl VirtualPageNumber {
     /// 从虚拟地址取得页面
     pub fn deref(self) -> &'static mut [u8; PAGE_SIZE] {
         VirtualAddress::from(self).deref()
+    }
+}
+impl PhysicalPageNumber {
+    /// 从物理地址经过线性映射取得页面
+    pub fn deref_kernel(self) -> &'static mut [u8; PAGE_SIZE] {
+        PhysicalAddress::from(self).deref_kernel()
     }
 }
 
