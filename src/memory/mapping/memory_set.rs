@@ -29,7 +29,6 @@ impl MemorySet {
             fn data_start();
             fn bss_start();
             fn boot_stack();
-            fn boot_stack_top();
         }
 
         // 建立字段

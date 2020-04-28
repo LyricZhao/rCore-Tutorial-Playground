@@ -51,7 +51,10 @@ pub extern "C" fn rust_main() -> ! {
     interrupt::init();
     memory::init();
 
-    println!("Remapped");
+    let remap = memory::mapping::MemorySet::new_kernel().unwrap();
+    remap.activate();
+
+    println!("kernel remapped");
 
     loop {}
 }

@@ -36,6 +36,7 @@ impl Mapping {
     /// 创建一个有根节点的映射
     pub fn new() -> MemoryResult<Mapping> {
         let root_table = PageTableTracker::new(FRAME_ALLOCATOR.lock().alloc()?);
+        println!("{} {:x?}", root_table.0.address(), root_table.entries[0]);
         let root_ppn = root_table.page_number();
         Ok(Mapping {
             page_tables: vec![root_table],
@@ -83,7 +84,6 @@ impl Mapping {
         // 从根页表开始向下查询
         // 这里不用 self.page_tables[0] 避免后面产生 borrow-check 冲突（我太菜了）
         let root_table: &mut PageTable = PhysicalAddress::from(self.root_ppn).deref_kernel();
-        // print!("0: {:p} ", root_table);
         let mut pte = &mut root_table.entries[vpn.levels()[0]];
         // println!("[{}] = {:x?}", vpn.levels()[0], pte);
         for vpn_slice in &vpn.levels()[1..] {

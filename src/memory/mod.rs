@@ -16,7 +16,6 @@ pub mod range;
 /// 一个缩写，模块中一些函数会使用
 pub type MemoryResult<T> = Result<T, &'static str>;
 
-use lazy_static::*;
 pub use {
     address::*,
     config::*,
@@ -25,14 +24,9 @@ pub use {
     range::Range,
 };
 
-lazy_static! {
-    pub static ref KERNEL_REMAP: MemorySet = mapping::MemorySet::new_kernel().unwrap();
-}
-
 /// 初始化内存相关的子模块
 ///
 /// - [`heap::init`]
 pub fn init() {
     heap::init();
-    KERNEL_REMAP.activate();
 }
