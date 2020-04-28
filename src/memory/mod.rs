@@ -10,16 +10,29 @@ pub mod address;
 pub mod config;
 pub mod frame;
 pub mod heap;
+pub mod mapping;
 pub mod range;
 
 /// 一个缩写，模块中一些函数会使用
 pub type MemoryResult<T> = Result<T, &'static str>;
 
-pub use {address::*, config::*, frame::FRAME_ALLOCATOR, range::Range};
+use lazy_static::*;
+pub use {
+    address::*,
+    config::*,
+    frame::FRAME_ALLOCATOR,
+    mapping::{Flags, MemorySet, Segment},
+    range::Range,
+};
+
+lazy_static! {
+    pub static ref KERNEL_REMAP: MemorySet = mapping::MemorySet::new_kernel().unwrap();
+}
 
 /// 初始化内存相关的子模块
 ///
 /// - [`heap::init`]
 pub fn init() {
     heap::init();
+    KERNEL_REMAP.activate();
 }

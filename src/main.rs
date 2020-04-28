@@ -17,9 +17,9 @@
 //!   而语言要求我们同时实现一个错误回调，这里我们直接 panic
 #![feature(alloc_error_handler)]
 //!
-//! - `#![feature(asm)]`  
+//! - `#![feature(llvm_asm)]`
 //!   内嵌汇编
-#![feature(asm)]
+#![feature(llvm_asm)]
 //!
 //! - `#![feature(global_asm)]`  
 //!   内嵌整个汇编文件
@@ -51,18 +51,7 @@ pub extern "C" fn rust_main() -> ! {
     interrupt::init();
     memory::init();
 
-    // 物理页分配
-    for _ in 0..2 {
-        let frame_0 = match memory::frame::FRAME_ALLOCATOR.lock().alloc() {
-            Result::Ok(frame_tracker) => frame_tracker,
-            Result::Err(err) => panic!("{}", err),
-        };
-        let frame_1 = match memory::frame::FRAME_ALLOCATOR.lock().alloc() {
-            Result::Ok(frame_tracker) => frame_tracker,
-            Result::Err(err) => panic!("{}", err),
-        };
-        println!("{} and {}", frame_0.address(), frame_1.address());
-    }
+    println!("Remapped");
 
     loop {}
 }
